@@ -1,0 +1,63 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+@* <h1 class="text-center mb-4">@ViewData["Title"]</h1> *@
+
+<div class="d-flex justify-content-center">
+    <div class="card shadow-lg" style="max-width: 11500px;">
+        <div class="row g-0">
+            <!-- Imagen a la izquierda -->
+            <div class="col-md-5 d-flex align-items-center justify-content-center p-3">
+                <img src="~/images/Logos/Inicial.jpg" alt="Iniciar sesión" style="width: 330px; height: 360px;" />
+            </div>
+
+            <!-- Formulario a la derecha -->
+            <div class="col-md-7 p-4">
+                <form id="account" method="post">
+                    <h3 class="mb-2">Inicia sesión con tu cuenta</h3>
+                    <p class="text-muted mb-3">Introduce tu correo electrónico y contraseña para acceder.</p>
+                    <hr />
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
+                        <label asp-for="Input.Email">Correo electrónico</label>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" placeholder="Contraseña" />
+                        <label asp-for="Input.Password">Contraseña</label>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" asp-for="Input.RememberMe" />
+                        <label class="form-check-label" asp-for="Input.RememberMe">
+                            Recordar Credenciales
+                        </label>
+                    </div>
+
+                    <button id="login-submit" type="submit" class="w-100 btn btn-info btn-lg mb-2">Iniciar sesión</button>
+
+                    <div class="text-center">
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="btn btn-outline-secondary">Regístrate aquí</a>
+                    </div>
+
+                    <div class="mt-3 text-center">
+                        <a id="forgot-password" asp-page="./ForgotPassword">¿Olvidaste tu contraseña?</a><br />
+                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Reenviar confirmación de correo</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

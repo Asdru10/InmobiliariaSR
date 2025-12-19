@@ -1,0 +1,110 @@
+﻿@page
+@using ProyectoInmobilaria.Utilities
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+@* <h1 class="text-center mb-4">@ViewData["Title"]</h1> *@
+
+<div class="d-flex justify-content-center">
+    <div class="card shadow-lg" style="max-width: 1000px;">
+        <div class="row g-0">
+            <!-- Imagen a la izquierda, centrada verticalmente -->
+            <div class="col-md-5 d-flex align-items-center justify-content-center p-3">
+                <img src="~/images/Logos/Inicial.jpg" alt="Registro" style="width: 400px; height: 430px;" />
+            </div>
+
+            <!-- Formulario a la derecha -->
+            <div class="col-md-7 p-4">
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <h3 class="mb-2">Crear cuenta nueva</h3>
+                    <p class="text-muted mb-3">Introduce un nombre de usuario, cédula, correo electrónico y contraseña para crear tu cuenta.</p>
+                    <hr />
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.FullName" class="form-control" placeholder="Nombre completo" />
+                        <label asp-for="Input.FullName">Nombre completo</label>
+                        <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Cedula" class="form-control" placeholder="Cédula" />
+                        <label asp-for="Input.Cedula">Cédula</label>
+                        <span asp-validation-for="Input.Cedula" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Input.CountryCode"></label>
+                        <select asp-for="Input.CountryCode" class="form-control">
+                            <option value="+506">🇨🇷 Costa Rica (+506)</option>
+                            <option value="+1">🇺🇸 Estados Unidos / 🇨🇦 Canadá (+1)</option>
+                            <option value="+52">🇲🇽 México (+52)</option>
+                            <option value="+57">🇨🇴 Colombia (+57)</option>
+                            <option value="+58">🇻🇪 Venezuela (+58)</option>
+                            <option value="+51">🇵🇪 Perú (+51)</option>
+                            <option value="+54">🇦🇷 Argentina (+54)</option>
+                            <option value="+55">🇧🇷 Brasil (+55)</option>
+                            <option value="+56">🇨🇱 Chile (+56)</option>
+                            <option value="+507">🇵🇦 Panamá (+507)</option>
+                            <option value="+593">🇪🇨 Ecuador (+593)</option>
+                            <option value="+502">🇬🇹 Guatemala (+502)</option>
+                            <option value="+504">🇭🇳 Honduras (+504)</option>
+                            <option value="+503">🇸🇻 El Salvador (+503)</option>
+                            <option value="+505">🇳🇮 Nicaragua (+505)</option>
+                            <option value="+34">🇪🇸 España (+34)</option>
+                            <option value="+44">🇬🇧 Reino Unido (+44)</option>
+                            <option value="+49">🇩🇪 Alemania (+49)</option>
+                            <option value="+33">🇫🇷 Francia (+33)</option>
+                            <option value="+39">🇮🇹 Italia (+39)</option>
+                            <option value="+81">🇯🇵 Japón (+81)</option>
+                            <option value="+82">🇰🇷 Corea del Sur (+82)</option>
+                            <option value="+91">🇮🇳 India (+91)</option>
+                        </select>
+                        <span asp-validation-for="Input.CountryCode" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Número de Teléfono" />
+                        <label asp-for="Input.PhoneNumber"></label>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="Correo electrónico" />
+                        <label asp-for="Input.Email">Correo electrónico</label>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" placeholder="Contraseña" />
+                        <label asp-for="Input.Password">Contraseña</label>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="Confirmar contraseña" />
+                        <label asp-for="Input.ConfirmPassword">Confirmar contraseña</label>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                      @if (User.IsInRole(ManageRoles.Role_Admin))
+            {
+                    <div class="form-floating mb-3">
+                        <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select">
+                            <option disabled selected>--- Selecciona un rol ---</option>
+                        </select>
+                        <label asp-for="Input.Role">Rol</label>
+                    </div>
+            }
+
+                    <button type="submit" class="w-100 btn btn-info btn-lg mb-2">Registrarse</button>
+
+                    <!-- Botón adicional para iniciar sesión -->
+                    <div class="text-center">
+                        <a class="btn btn-outline-secondary" asp-page="/Account/Login">Inicia sesión aquí</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

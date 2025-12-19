@@ -1,0 +1,74 @@
+﻿@model List<ProyectoInmobilaria.Models.Propiedad>
+
+<div class="container">
+    <div class="row pt-4 align-items-center">
+        <div class="col-6">
+            <h2 class="text-primary">Mis Propiedades</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-area="Cliente" asp-controller="Propiedades" asp-action="MyPropertiesTable" class="btn btn-success me-2" title="Ver en tabla">
+                <i class="bi bi-table"></i>
+            </a>
+            <a asp-area="Cliente" asp-controller="Propiedades" asp-action="Upsert" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Agregar Propiedad
+            </a>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        @foreach (var p in Model)
+        {
+            <div class="col-sm-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@p.Titulo</h5>
+                        <p class="card-text fw-semibold fs-5">₡@String.Format("{0:N0}", p.Precio)</p>
+
+                        <div class="mt-auto d-flex gap-2">
+                            <a asp-area="Cliente" asp-controller="Propiedades" asp-action="Details" asp-route-id="@p.Id"
+                               class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-eye"></i> Detalles
+                            </a>
+
+                            <a asp-area="Cliente" asp-controller="Propiedades" asp-action="Upsert" asp-route-id="@p.Id"
+                               class="btn btn-info flex-grow-1 d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+
+                            <button onclick="Delete(@p.Id)" class="btn btn-danger flex-grow-1 d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function Delete(id) {
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "¡No podrás revertir esto!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar"
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/Cliente/Propiedades/Delete/${id}`,
+                        type: 'DELETE',
+                        success: () => {
+                            toastr.success("Propiedad eliminada correctamente.");
+                            location.reload();
+                        },
+                        error: () => toastr.error("Error al eliminar la propiedad.")
+                    });
+                }
+            });
+        }
+    </script>
+}

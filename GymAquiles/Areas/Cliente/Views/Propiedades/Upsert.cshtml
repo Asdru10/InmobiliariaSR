@@ -1,0 +1,218 @@
+﻿@model ProyectoInmobilaria.Models.ViewModels.PropiedadVM
+
+<form method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Propiedad.Id" />
+
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">@((Model.Propiedad.Id == 0) ? "Agregar Propiedad" : "Editar Propiedad")</h2>
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col-sm-6">
+                <label asp-for="Propiedad.Titulo" class="form-label"></label>
+                <input asp-for="Propiedad.Titulo" class="form-control" />
+                <span asp-validation-for="Propiedad.Titulo" class="text-danger"></span>
+            </div>
+
+            <div class="col-sm-6">
+                <label asp-for="Propiedad.Precio" class="form-label"></label>
+                <input asp-for="Propiedad.Precio" class="form-control" />
+                <span asp-validation-for="Propiedad.Precio" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Propiedad.Descripcion" class="form-label"></label>
+            <textarea asp-for="Propiedad.Descripcion" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Propiedad.Descripcion" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col-sm-6">
+                <label asp-for="Propiedad.Estado" class="form-label"></label>
+                <select asp-for="Propiedad.Estado" class="form-select">
+                    <option value="">Seleccione un estado</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="Vendido">Vendido</option>
+                    <option value="Reservado">Reservado</option>
+                </select>
+                <span asp-validation-for="Propiedad.Estado" class="text-danger"></span>
+            </div>
+
+            <div class="col-sm-6">
+                <label asp-for="Propiedad.Tipo" class="form-label"></label>
+                <select asp-for="Propiedad.Tipo" class="form-select">
+                    <option value="">Seleccione un tipo</option>
+                    <option value="Casa">Casa</option>
+                    <option value="Apartamento">Apartamento</option>
+                    <option value="Lote">Lote</option>
+                </select>
+                <span asp-validation-for="Propiedad.Tipo" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Características</label>
+            @foreach (var c in Model.TodasLasCaracteristicas)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="CaracteristicasSeleccionadas"
+                           value="@c.Id" @(Model.CaracteristicasSeleccionadas.Contains(c.Id) ? "checked" : "") />
+                    <label class="form-check-label">@c.Caracteristica</label>
+                </div>
+            }
+        </div>
+
+        <!-- 📸 Campo para subir múltiples imágenes -->
+        <div class="mb-3">
+            <label class="form-label">Fotografías</label>
+            <input type="file" name="Fotografias" multiple class="form-control" />
+        </div>
+
+        <div class="border p-3 mt-4">
+            <h3>Ubicación de la Propiedad</h3>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Ubicacion.Pais" class="form-label"></label>
+                        <input asp-for="Ubicacion.Pais" class="form-control" value="Costa Rica" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Ubicacion.Provincia" class="form-label"></label>
+                        <select asp-for="Ubicacion.Provincia" class="form-select" id="provinciaSelect">
+                            <option value="">Seleccione una provincia</option>
+                            <option value="San José">San José</option>
+                            <option value="Alajuela">Alajuela</option>
+                            <option value="Cartago">Cartago</option>
+                            <option value="Heredia">Heredia</option>
+                            <option value="Guanacaste">Guanacaste</option>
+                            <option value="Puntarenas">Puntarenas</option>
+                            <option value="Limón">Limón</option>
+                        </select>
+                        <span asp-validation-for="Ubicacion.Provincia" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Ubicacion.Ciudad" class="form-label"></label>
+                        <input asp-for="Ubicacion.Ciudad" class="form-control" id="ciudadInput" />
+                        <span asp-validation-for="Ubicacion.Ciudad" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Ubicacion.Direccion" class="form-label"></label>
+                        <input asp-for="Ubicacion.Direccion" class="form-control" id="direccionInput" />
+                        <span asp-validation-for="Ubicacion.Direccion" class="text-danger"></span>
+                    </div>
+
+                    <!-- Inputs ocultos para latitud/longitud como string -->
+                    <input type="hidden" asp-for="Ubicacion.Latitud" id="latitudInput" />
+                    <input type="hidden" asp-for="Ubicacion.Longitud" id="longitudInput" />
+                    <span asp-validation-for="Ubicacion.Latitud" class="text-danger"></span>
+                    <span asp-validation-for="Ubicacion.Longitud" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <h5>Seleccione la ubicación en el mapa:</h5>
+                    <div id="map" style="height: 400px; border: 1px solid #ccc;"></div>
+                    <div class="mt-2 text-muted">
+                        <small>Haga clic en el mapa para marcar la ubicación exacta</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @section Styles {
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        }
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success" style="width:150px">Guardar</button>
+            <a asp-area="Cliente" asp-controller="Propiedades" asp-action="Index" class="btn btn-secondary" style="width:150px">Cancelar</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Coordenadas por defecto (San Ramón de Alajuela)
+        const defaultCoords = [10.0880, -84.4695];
+        let map, marker;
+
+        function initMap() {
+            // Se obtiene el valor actual de los inputs ocultos (strings)
+            let latStr = document.getElementById('latitudInput').value;
+            let lngStr = document.getElementById('longitudInput').value;
+            let initialLat = parseFloat(latStr);
+            let initialLng = parseFloat(lngStr);
+
+            if (!isNaN(initialLat) && !isNaN(initialLng)) {
+                map = L.map('map').setView([initialLat, initialLng], 14);
+            } else {
+                map = L.map('map').setView(defaultCoords, 14);
+            }
+
+            // Capa de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            // Si ya había coordenadas válidas, colocar marcador
+            if (!isNaN(initialLat) && !isNaN(initialLng)) {
+                marker = L.marker([initialLat, initialLng]).addTo(map);
+            }
+
+            // Manejar clics en el mapa
+            map.on('click', function (e) {
+                const coords = [e.latlng.lat, e.latlng.lng];
+
+                // Actualizar/crear marcador
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                marker = L.marker(coords).addTo(map);
+
+                // Asignar a inputs ocultos como strings
+                document.getElementById('latitudInput').value = coords[0].toString();
+                document.getElementById('longitudInput').value = coords[1].toString();
+
+                // Reverse geocoding con Nominatim
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords[0]}&lon=${coords[1]}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.address) {
+                            const addr = data.address;
+                            let direccion = '';
+                            if (addr.road) direccion += addr.road;
+                            if (addr.house_number) direccion += ` ${addr.house_number}`;
+                            // Rellenar sólo si hay valor; si no, dejar previo
+                            if (direccion) {
+                                document.getElementById('direccionInput').value = direccion;
+                            }
+                            const ciudad = addr.city || addr.town || addr.village;
+                            if (ciudad) {
+                                document.getElementById('ciudadInput').value = ciudad;
+                            }
+                            if (addr.state) {
+                                const provinciaSelect = document.getElementById('provinciaSelect');
+                                for (let option of provinciaSelect.options) {
+                                    if (option.text.toLowerCase().includes(addr.state.toLowerCase())) {
+                                        option.selected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.warn('Reverse geocoding falló:', err);
+                    });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+}

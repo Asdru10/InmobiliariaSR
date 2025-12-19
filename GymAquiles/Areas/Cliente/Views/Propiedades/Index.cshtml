@@ -1,0 +1,292 @@
+@model ProyectoInmobilaria.Models.ViewModels.PropiedadesIndexVM
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@inject ProyectoInmobilaria.Utilities.ICurrencyConverter _currencyConverter
+
+<partial name="_Notifications" />
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+}
+
+<div class="container py-4">
+
+    <!-- Sección de propiedades destacadas -->
+    @if (Model.PropiedadesDestacadas?.Any() == true)
+    {
+        <div class="mb-5">
+            <h2 class="text-success fw-bold mb-4">Propiedades Destacadas</h2>
+            <div class="row g-4">
+                @foreach (var p in Model.PropiedadesDestacadas)
+                {
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card h-100 shadow-sm border-0 rounded-4 position-relative">
+                            @if (!string.IsNullOrEmpty(p.UrlFoto))
+                            {
+                                <div class="position-relative">
+                                    <img src="@p.UrlFoto" class="card-img-top" style="height: 160px; object-fit: cover;" alt="Imagen de @p.Propiedad.Titulo" />
+                                </div>
+                            }
+                            <button class="btn btn-sm @(p.EsFavorita ? "btn-danger" : "btn-outline-danger") btn-favorito position-absolute top-0 end-0 m-2 cursor-pointer"
+                                    data-id="@p.Propiedad.Id" title="Favorito">
+                                <i class="bi @(p.EsFavorita ? "bi-heart-fill" : "bi-heart")"></i>
+                            </button>
+                            <div class="card-body d-flex flex-column p-3">
+                                <h6 class="card-title fw-semibold text-success">@p.Propiedad.Titulo</h6>
+                                <p class="card-text small">@p.Propiedad.Descripcion</p>
+
+                                @{
+                                    bool monedaValida = Model.CurrencySymbols.ContainsKey(p.Propiedad.Moneda)
+                                    && Model.CurrencySymbols.ContainsKey(Model.SelectedCurrency);
+                                    decimal precioConvertido = 0;
+                                    string simboloMoneda = "";
+
+                                    if (monedaValida)
+                                    {
+                                        precioConvertido = _currencyConverter.Convert(
+                                        p.Propiedad.Precio,
+                                        p.Propiedad.Moneda,
+                                        Model.SelectedCurrency
+                                        );
+                                        simboloMoneda = Model.CurrencySymbols[Model.SelectedCurrency];
+                                    }
+                                }
+
+                                @if (monedaValida)
+                                {
+                                    <p class="card-text text-muted fs-6 mt-2 mb-1">
+                                        @simboloMoneda @precioConvertido.ToString("N0")
+                                        <span class="text-muted small ms-2">@Model.SelectedCurrency</span>
+                                    </p>
+                                    @if (p.Propiedad.Moneda != Model.SelectedCurrency)
+                                    {
+                                        <small class="text-muted">
+                                            Precio original: @p.Propiedad.Moneda @p.Propiedad.Precio.ToString("N2")
+                                        </small>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-danger mt-2">Moneda no soportada</p>
+                                }
+
+                                <div class="mt-auto">
+                                    <a asp-area="Cliente" asp-controller="Propiedades" asp-action="Details"
+                                       asp-route-id="@p.Propiedad.Id" class="btn btn-outline-primary w-100 d-flex justify-content-center align-items-center gap-2">
+                                        <i class="bi bi-eye"></i>
+                                        Ver Detalles
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Cabecera -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="text-primary fw-bold">Todas las Propiedades</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <a asp-area="Cliente" asp-controller="Propiedades" asp-action="MyProperties" class="btn btn-info shadow-sm">
+                <i class="bi bi-house-door"></i> Mis Propiedades
+            </a>
+            <a asp-area="Cliente" asp-controller="Propiedades" asp-action="Favoritos" class="btn btn-danger shadow-sm ms-2">
+                <i class="bi bi-heart"></i> Mis Favoritos
+            </a>
+        </div>
+    </div>
+
+    <!-- Selector de moneda -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form asp-action="Index" method="get" class="d-flex align-items-center">
+                <label class="me-2 mb-0">Mostrar precios en:</label>
+                <select name="currency" onchange="this.form.submit()" class="form-select form-select-sm w-auto">
+                    @foreach (var currency in Model.AvailableCurrencies)
+                    {
+                        <option value="@currency" selected="@(currency == Model.SelectedCurrency)">
+                            @Model.CurrencySymbols[currency] @currency
+                        </option>
+                    }
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtros por características -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <form asp-action="Index" method="get" class="row row-cols-1 row-cols-sm-3 row-cols-md-4 g-2">
+                <input type="hidden" name="currency" value="@Model.SelectedCurrency" />
+                @foreach (var caracteristica in Model.TodasLasCaracteristicas)
+                {
+                    <div class="form-check ms-3">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="caracteristicasSeleccionadas"
+                               value="@caracteristica.Id"
+                               @(Model.CaracteristicasSeleccionadas.Contains(caracteristica.Id) ? "checked" : "") />
+                        <label class="form-check-label">@caracteristica.Caracteristica</label>
+                    </div>
+                }
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                        <i class="bi bi-funnel"></i>
+                        Filtrar
+                    </button>
+                    <a asp-action="Index" asp-route-limpiar="true" asp-route-currency="@Model.SelectedCurrency" class="btn btn-secondary ms-2">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Propiedades generales -->
+    <div class="row g-4">
+        @foreach (var p in Model.PropiedadesVm)
+        {
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 rounded-4 position-relative">
+                    @if (!string.IsNullOrEmpty(p.UrlFoto))
+                    {
+                        <div class="position-relative">
+                            <img src="@p.UrlFoto" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Imagen de @p.Propiedad.Titulo" />
+                        </div>
+                    }
+                    <button class="btn btn-sm @(p.EsFavorita ? "btn-danger" : "btn-outline-danger") btn-favorito position-absolute top-0 end-0 m-2 cursor-pointer"
+                            data-id="@p.Propiedad.Id" title="Favorito">
+                        <i class="bi @(p.EsFavorita ? "bi-heart-fill" : "bi-heart")"></i>
+                    </button>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-semibold text-primary">@p.Propiedad.Titulo</h5>
+                        <p class="card-text">@p.Propiedad.Descripcion</p>
+
+                        @{
+                            bool monedaValida = Model.CurrencySymbols.ContainsKey(p.Propiedad.Moneda)
+                            && Model.CurrencySymbols.ContainsKey(Model.SelectedCurrency);
+                            decimal precioConvertido = 0;
+                            string simboloMoneda = "";
+
+                            if (monedaValida)
+                            {
+                                precioConvertido = _currencyConverter.Convert(
+                                p.Propiedad.Precio,
+                                p.Propiedad.Moneda,
+                                Model.SelectedCurrency
+                                );
+                                simboloMoneda = Model.CurrencySymbols[Model.SelectedCurrency];
+                            }
+                        }
+
+                        @if (monedaValida)
+                        {
+                            <p class="card-text text-muted fs-5 mt-2 d-flex align-items-center gap-2">
+                                @simboloMoneda @precioConvertido.ToString("N0")
+                                <span class="text-muted small ms-2">@Model.SelectedCurrency</span>
+                            </p>
+                            @if (p.Propiedad.Moneda != Model.SelectedCurrency)
+                            {
+                                <small class="text-muted">
+                                    Precio original: @p.Propiedad.Moneda @p.Propiedad.Precio.ToString("N2")
+                                </small>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-danger mt-2">Moneda no soportada</p>
+                        }
+
+                        <div class="mt-auto">
+                            <a asp-area="Cliente" asp-controller="Propiedades" asp-action="Details"
+                               asp-route-id="@p.Propiedad.Id" class="btn btn-outline-primary w-100 d-flex justify-content-center align-items-center gap-2">
+                                <i class="bi bi-eye"></i>
+                                Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <!-- Mapa general de propiedades -->
+    <div class="mb-5">
+        <h2 class="text-primary fw-bold">Mapa de Propiedades</h2>
+        <div id="mapIndex" style="height: 400px; border:1px solid #ccc;"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.btn-favorito').click(function () {
+                const btn = $(this);
+                const propiedadId = btn.data('id');
+
+                $.post('/Cliente/Propiedades/ToggleFavorito', { propiedadId: propiedadId })
+                    .done(function (data) {
+                        if (data.success) {
+                            if (data.favorito) {
+                                btn.removeClass('btn-outline-danger').addClass('btn-danger');
+                                btn.html('<i class="bi bi-heart-fill"></i>');
+                            } else {
+                                btn.removeClass('btn-danger').addClass('btn-outline-danger');
+                                btn.html('<i class="bi bi-heart"></i>');
+                            }
+                        } else if (data.redirectToLogin) {
+                            window.location.href = data.redirectToLogin;
+                        }
+                    })
+                    .fail(function (xhr) {
+                        if (xhr.status === 401 || xhr.status === 302) {
+                            window.location.href = '/Identity/Account/Login';
+                        }
+                    });
+            });
+        });
+    </script>
+
+
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mapContainer = document.getElementById('mapIndex');
+            if (!mapContainer) return;
+
+            // Centrar en Costa Rica
+            const centroCR = [9.7489, -83.7534];
+            const map = L.map('mapIndex').setView(centroCR, 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Obtener ubicaciones vía AJAX
+            fetch('@Url.Action("GetUbicaciones", "Propiedades", new { area = "Cliente" })')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(item => {
+                        const lat = parseFloat(item.latitud);
+                        const lng = parseFloat(item.longitud);
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            const marker = L.marker([lat, lng]).addTo(map);
+                            const popupHtml = `<strong>${item.titulo}</strong><br/><a href="${item.urlDetalle}">Ver detalle</a>`;
+                            marker.bindPopup(popupHtml);
+                        }
+                    });
+                })
+                .catch(err => console.error('Error al cargar ubicaciones:', err));
+
+        });
+    </script>
+}
+}
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>
+

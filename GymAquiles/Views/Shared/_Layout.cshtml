@@ -1,0 +1,175 @@
+﻿@using ProyectoInmobilaria.Utilities
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] -Proyecto Inmobilaria</title>
+
+    <!-- Estilos -->
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/site.css" asp-append-version="true" rel="stylesheet" />
+    <link href="~/ProyectoInmobilaria.styles.css" asp-append-version="true" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="//cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .navbar-custom {
+            background-color: #272F5D;
+        }
+
+            .navbar-custom .navbar-brand,
+            .navbar-custom .nav-link,
+            .navbar-custom .dropdown-toggle {
+                color: white !important;
+            }
+
+                .navbar-custom .nav-link:hover,
+                .navbar-custom .dropdown-item:hover {
+                    background-color: #002244;
+                    color: white !important;
+                }
+    </style>
+    @RenderSection("Styles", required: false)
+
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-custom shadow-sm border-bottom">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/Logos/Logo.png" alt="Logo Inmobilaria" style="height: 90px; width: auto;" />
+                    <span class="fs-5 text-white">Inmobilaria San Ramon                   </span>
+                </a>
+
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Cliente" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door me-1"></i> Inicio
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Cliente" asp-controller="Propiedades" asp-action="Index">Propiedades</a>
+                            </li>
+
+
+                        @if (User.IsInRole(ManageRoles.Role_Admin))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-layout-text-window me-1"></i> Gestión
+                                </a>
+                               
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
+                                    <i class="bi bi-person-plus me-1"></i> Registrar usuario
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+
+                    <!-- Login / Logout -->
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contenido principal -->
+    <main role="main" class="flex-grow-1 container py-4" style="padding-bottom: 100px;">
+    @RenderBody()
+    </main>
+
+   
+    <!-- Footer -->
+    <footer class="mt-auto bg-white border-top shadow-sm pt-4">
+
+        <div class="container">
+
+            <!-- Carrusel de Patrocinadores -->
+            <div id="sponsorCarousel" class="carousel slide mb-4 custom-margin-top" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <a href="https://www.coca-cola.com/cr/es" target="_blank" rel="noopener noreferrer">
+                            <img src="~/images/ads/cocacola.jpg" class="d-block w-100" alt="Patrocinador 1">
+                        </a>
+                    </div>
+                    <div class="carousel-item">
+                        <a href="https://www.intel.la/content/www/xl/es/homepage.html" target="_blank" rel="noopener noreferrer">
+                            <img src="~/images/ads/intel.jpg" class="d-block w-100" alt="Patrocinador 2">
+                        </a>
+                    </div>
+                    <div class="carousel-item">
+                        <a href="https://www.nvidia.com/es-es/" target="_blank" rel="noopener noreferrer">
+                            <img src="~/images/ads/nvidia.jpg" class="d-block w-100" alt="Patrocinador 3">
+                        </a>
+                    </div>
+                    <div class="carousel-item">
+                        <a href="https://www.mcdonalds.co.cr" target="_blank" rel="noopener noreferrer">
+                            <img src="~/images/ads/mcdonalds.jpg" class="d-block w-100" alt="Patrocinador 3">
+                        </a>
+                    </div>
+                    <div class="carousel-item">
+                        <a href="https://www.disneyplus.com/es-cr" target="_blank" rel="noopener noreferrer">
+                            <img src="~/images/ads/disney+.jpg" class="d-block w-100" alt="Patrocinador 3">
+                        </a>
+                    </div>
+                    <div class="carousel-item">
+                        <a href="https://fundacionucr.ac.cr" target="_blank" rel="noopener noreferrer">
+                            <img src="~/images/ads/fundacionucr.jpg" class="d-block w-100" alt="Patrocinador 3">
+                        </a>
+                    </div>
+                    <div class="carousel-item">
+                        <a href="https://www.nintendo.com/us/" target="_blank" rel="noopener noreferrer">
+                            <img src="~/images/ads/nintendo.jpg" class="d-block w-100" alt="Patrocinador 3">
+                        </a>
+                    </div>
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#sponsorCarousel" data-bs-slide="prev">
+                    <i class="bi bi-chevron-left fs-1 text-dark position-absolute start-0 top-50 translate-middle-y"></i>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#sponsorCarousel" data-bs-slide="next">
+                    <i class="bi bi-chevron-right fs-1 text-dark position-absolute end-0 top-50 translate-middle-y"></i>
+                    <span class="visually-hidden">Siguiente</span>
+                </button>
+            </div>
+
+
+            <!-- Créditos -->
+            <div class="text-center text-muted small pb-2">
+                © @DateTime.Now.Year <strong>Proyecto Inmobilaria</strong> - Desarrollado por Grupo#1 <i class="bi bi-cpu text-primary"></i>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="//cdn.datatables.net/2.0.7/js/dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <partial name="_ValidationScriptsPartial" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
